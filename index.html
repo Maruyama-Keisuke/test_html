@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>サンプル依頼フォーム</title>
+<!-- PWA設定 -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="サンプル依頼">
+<meta name="theme-color" content="#2c5f4a">
+<style>
+:root{
+  --bg:#f5f4f0;--surface:#fff;--border:#d8d5ce;
+  --accent:#2c5f4a;--accent-light:#e8f2ed;
+  --text:#1a1a18;--muted:#6b6b66;--danger:#c0392b;--info:#1a5276;
+  --radius:10px;--font:'Hiragino Kaku Gothic ProN','Meiryo',sans-serif;
+  --input-h:44px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;min-height:100vh;padding:16px 12px 40px;}
+.wrapper{max-width:680px;margin:0 auto;}
+header{margin-bottom:16px;border-left:4px solid var(--accent);padding-left:12px;}
+header h1{font-size:18px;font-weight:700;color:var(--accent);}
+header p{color:var(--muted);font-size:11px;margin-top:3px;}
+
+/* インポートバー */
+.import-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;}
+.import-bar .lbl{font-size:12px;font-weight:700;color:var(--accent);display:block;margin-bottom:6px;}
+.import-bar .desc{font-size:11px;color:var(--muted);display:block;margin-bottom:8px;line-height:1.5;}
+.import-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.file-btn{display:inline-block;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--text);transition:all .15s;white-space:nowrap;}
+.file-btn:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+input[type="file"]{display:none;}
+.imp-status{font-size:12px;color:var(--accent);font-weight:600;}
+.imp-status.err{color:var(--danger);}
+.tmpl-link{font-size:12px;color:var(--info);text-decoration:underline;cursor:pointer;}
+.acc-badge{font-size:12px;font-weight:700;color:#fff;background:#7d3c98;padding:5px 12px;border-radius:8px;white-space:nowrap;}
+
+/* カード */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px;}
+.card-title{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:12px;}
+.fields{display:flex;flex-direction:column;gap:12px;}
+
+.field{display:flex;flex-direction:column;gap:5px;}
+.fh{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+label{font-size:12px;font-weight:600;color:var(--muted);}
+.req{color:var(--danger);margin-left:2px;}
+.list-badge{font-size:9px;background:var(--accent-light);color:var(--accent);font-weight:700;padding:2px 6px;border-radius:8px;}
+
+input[type="text"],input[type="date"],select,textarea{
+  width:100%;min-height:var(--input-h);padding:10px 12px;
+  border:1px solid var(--border);border-radius:8px;
+  font-family:var(--font);font-size:15px;color:var(--text);background:#fafaf8;
+  outline:none;appearance:none;-webkit-appearance:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b66' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;
+}
+textarea{min-height:80px;resize:vertical;line-height:1.6;padding-top:10px;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,95,74,.12);background:#fff;}
+select:disabled{background-color:#eeecea;color:var(--muted);}
+
+/* トグル */
+.toggle-wrap{display:flex;gap:6px;align-items:stretch;}
+.toggle-wrap input,.toggle-wrap select{flex:1;}
+.tog-btn{flex-shrink:0;min-width:72px;padding:0 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.tog-btn:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+
+/* ラジオ */
+.radio-group{display:flex;gap:6px;flex-wrap:wrap;}
+.radio-btn{
+  flex:1;min-width:60px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font);font-size:13px;font-weight:500;
+  color:var(--text);padding:10px 8px;
+  border:1px solid var(--border);border-radius:8px;
+  background:var(--surface);
+  cursor:pointer;user-select:none;text-align:center;
+  touch-action:manipulation;
+  -webkit-appearance:none;appearance:none;
+  transition:all .12s;
+  min-height:var(--input-h);
+}
+.radio-btn.selected{background:var(--accent-light);border-color:var(--accent);color:var(--accent);font-weight:700;}
+.radio-btn:active{background:var(--accent-light);border-color:var(--accent);}
+
+/* 発売予定日 */
+.launch-wrap{display:flex;gap:6px;}
+.launch-wrap select:first-child{flex:1;}
+.launch-wrap select:last-child{flex:0 0 100px;}
+
+/* 納期 */
+.nouki-wrap{display:flex;flex-direction:column;gap:6px;}
+
+/* タグ複数選択 */
+.multisel-wrap{border:1px solid var(--border);border-radius:8px;background:#fafaf8;padding:8px 10px;display:flex;flex-direction:column;gap:7px;transition:border-color .15s;}
+.multisel-wrap:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(44,95,74,.12);background:#fff;}
+.tag-area{display:flex;flex-wrap:wrap;gap:5px;min-height:26px;}
+.tag{display:inline-flex;align-items:center;gap:5px;background:var(--accent-light);border:1px solid var(--accent);color:var(--accent);font-size:12px;font-weight:600;padding:4px 10px;border-radius:14px;}
+.tag .tag-del{cursor:pointer;font-size:16px;line-height:1;opacity:.7;padding:0 2px;}
+.tag .tag-del:active{opacity:1;}
+.multisel-row{display:flex;gap:6px;align-items:center;}
+.multisel-row select{flex:1;font-size:14px;}
+.multisel-empty{font-size:12px;color:var(--muted);font-style:italic;}
+
+/* 登録リスト */
+.records-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-top:16px;}
+.rec-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.rec-title{font-size:12px;font-weight:700;color:var(--accent);}
+.cnt-badge{font-size:11px;background:var(--accent-light);color:var(--accent);font-weight:700;padding:3px 10px;border-radius:14px;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:11px;min-width:500px;}
+th{text-align:left;padding:8px;background:var(--bg);color:var(--muted);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:8px;border-bottom:1px solid #eeecea;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#faf9f6;}
+.del-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:18px;padding:2px 6px;opacity:.6;}
+.del-btn:active{opacity:1;}
+.empty{text-align:center;padding:28px;color:var(--muted);font-size:13px;}
+
+/* ボタン */
+.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:12px;}
+.btn{padding:12px 20px;border-radius:8px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;min-height:44px;}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-outline:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:var(--accent);color:#fff;flex:1;}
+.btn-primary:active{background:#234f3c;}
+.btn-danger{background:transparent;border:1px solid #e8c4c0;color:var(--danger);}
+.btn-danger:active{background:#fdf0ee;}
+.btn-csv{background:var(--info);color:#fff;flex:1;}
+.btn-csv:active{background:#154360;}
+.btn-mail{background:#7d3c98;color:#fff;flex:1;}
+.btn-mail:active{background:#6c3483;}
+
+/* トースト */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--accent);color:#fff;padding:12px 22px;border-radius:22px;font-size:13px;font-weight:600;opacity:0;transition:all .25s;pointer-events:none;z-index:1000;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media(min-width:600px){
+  body{padding:24px 20px 48px;}
+  .wrapper{max-width:920px;}
+  header h1{font-size:20px;}
+  .card{padding:18px 22px;}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;}
+  .fields .full{grid-column:span 2;}
+  .toast{left:auto;right:20px;transform:translateY(60px);border-radius:8px;}
+  .toast.show{transform:translateY(0);}
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+<header>
+  <h1>サンプル依頼フォーム</h1>
+  <p>必要項目を入力して「追加」ボタンを押してください。複数件まとめてCSV出力できます。</p>
+</header>
+
+<!-- リスト読み込み -->
+<div class="import-bar">
+  <span class="lbl">📂 リスト読み込み</span>
+  <span class="desc">「カテゴリ,ID,名前[,得意先ID]」形式のCSVを読み込むと対応項目がプルダウンになります。AccessからHTML生成済みの場合はCSV読み込み不要です。</span>
+  <div class="import-row">
+    <span class="acc-badge" id="acc_badge" style="display:none">🗄️ Accessデータ埋込済</span>
+    <label class="file-btn" for="list_csv">📁 CSVを選択</label>
+    <input type="file" id="list_csv" accept=".csv" onchange="importListCSV(this)">
+    <span class="tmpl-link" onclick="downloadTemplate()">テンプレをDL</span>
+    <span class="imp-status" id="imp_status">未読み込み</span>
+  </div>
+</div>
+
+<!-- ① 基本情報 -->
+<div class="card">
+  <div class="card-title">基本情報</div>
+  <div class="fields">
+    <div class="field">
+      <label>依頼日<span class="req">*</span></label>
+      <input type="date" id="f_date">
+    </div>
+    <div class="field">
+      <div class="fh"><label>担当者</label><span class="list-badge" id="badge_staff" style="display:none">リスト済</span></div>
+      <div class="toggle-wrap">
+        <input type="text" id="f_staff" placeholder="例：山田 太郎">
+        <select id="f_staff_sel" style="display:none" onchange="onStaffChange()"></select>
+        <button class="tog-btn" id="toggle_staff" style="display:none" onclick="toggleMode('staff')">手入力</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>依頼内容</label>
+      <div class="radio-group" id="rg_req_short">
+        <button type="button" class="radio-btn" data-name="req_short" data-value="新規">新規</button>
+        <button type="button" class="radio-btn" data-name="req_short" data-value="改良">改良</button>
+        <button type="button" class="radio-btn" data-name="req_short" data-value="前回">前回</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>分類</label>
+      <div class="radio-group" id="rg_category">
+        <button type="button" class="radio-btn" data-name="category" data-value="化粧品">化粧品</button>
+        <button type="button" class="radio-btn" data-name="category" data-value="医薬部外品">医薬部外品</button>
+        <button type="button" class="radio-btn" data-name="category" data-value="雑貨">雑貨</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>発売予定日</label>
+      <div class="launch-wrap">
+        <select id="f_launch">
+          <option value="">— 月 —</option>
+          <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+          <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+          <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+          <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+        </select>
+        <select id="f_launch_year"><option value="">年</option></select>
+      </div>
+    </div>
+    <div class="field">
+      <div class="fh"><label>商品予定容器</label><span class="list-badge" id="badge_container" style="display:none">リスト済</span></div>
+      <div class="toggle-wrap">
+        <input type="text" id="f_container" placeholder="例：ポンプボトル">
+        <select id="f_container_sel" style="display:none"></select>
+        <button class="tog-btn" id="toggle_container" style="display:none" onclick="toggleMode('container')">手入力</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>容器色</label>
+      <input type="text" id="f_color" placeholder="例：クリア">
+    </div>
+    <div class="field">
+      <div class="fh"><label>得意先名</label><span class="list-badge" id="badge_client" style="display:none">リスト済</span></div>
+      <div class="toggle-wrap">
+        <input type="text" id="f_client" placeholder="例：株式会社〇〇">
+        <select id="f_client_sel" style="display:none" onchange="filterAddressByClient()"></select>
+        <button class="tog-btn" id="toggle_client" style="display:none" onclick="toggleMode('client')">手入力</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>サンプル名</label>
+      <input type="text" id="f_sample" placeholder="例：試作品A-1">
+    </div>
+    <div class="field full">
+      <label>納期</label>
+      <div class="nouki-wrap">
+        <input type="date" id="f_nouki_date">
+        <div class="radio-group" id="rg_nouki">
+          <button type="button" class="radio-btn" data-name="nouki" data-value="まで最短">まで最短</button>
+          <button type="button" class="radio-btn" data-name="nouki" data-value="絶対">絶対</button>
+          <button type="button" class="radio-btn" data-name="nouki" data-value="希望">希望</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 処方・内容情報 -->
+<div class="card">
+  <div class="card-title">処方・内容情報</div>
+  <div class="fields">
+    <div class="field full">
+      <label>ベース処方</label>
+      <input type="text" id="f_base" placeholder="例：既存品No.〇〇をベースに">
+    </div>
+    <div class="field full">
+      <label>依頼内容（詳細）</label>
+      <textarea id="f_request" placeholder="依頼の詳細内容を入力"></textarea>
+    </div>
+    <div class="field full">
+      <label>希望配合成分</label>
+      <textarea id="f_want_ing" placeholder="希望する配合成分を入力"></textarea>
+    </div>
+    <div class="field full">
+      <label>使用方法</label>
+      <textarea id="f_usage" placeholder="使用方法を入力"></textarea>
+    </div>
+    <div class="field">
+      <label>液色</label>
+      <input type="text" id="f_liqcolor" placeholder="例：無色透明">
+    </div>
+    <div class="field">
+      <label>香り</label>
+      <input type="text" id="f_scent" placeholder="例：フローラル系">
+    </div>
+  </div>
+</div>
+
+<!-- ③ 禁止成分・特記事項 -->
+<div class="card">
+  <div class="card-title">禁止成分・特記事項</div>
+  <div class="fields">
+    <!-- 使用禁止成分 -->
+    <div class="field full">
+      <div class="fh"><label>使用禁止成分</label><span class="list-badge" id="badge_ng_ing" style="display:none">リスト済・複数選択可</span></div>
+      <div class="multisel-wrap">
+        <div class="tag-area" id="tags_ng_ing"><span class="multisel-empty">未選択</span></div>
+        <div class="multisel-row" id="msrow_ng_ing" style="display:none">
+          <select id="f_ng_ing_sel" onchange="addTag('ng_ing')"><option value="">— 選択して追加 —</option></select>
+        </div>
+        <textarea id="f_ng_ing" placeholder="使用禁止成分を入力" style="display:none"></textarea>
+        <button class="tog-btn" id="toggle_ng_ing" style="display:none;align-self:flex-start;min-height:36px;padding:6px 12px;" onclick="toggleMode('ng_ing')">手入力</button>
+      </div>
+    </div>
+    <!-- 禁止防腐成分 -->
+    <div class="field full">
+      <div class="fh"><label>禁止防腐成分</label><span class="list-badge" id="badge_ng_pres" style="display:none">リスト済・複数選択可</span></div>
+      <div class="multisel-wrap">
+        <div class="tag-area" id="tags_ng_pres"><span class="multisel-empty">未選択</span></div>
+        <div class="multisel-row" id="msrow_ng_pres" style="display:none">
+          <select id="f_ng_pres_sel" onchange="addTag('ng_pres')"><option value="">— 選択して追加 —</option></select>
+        </div>
+        <textarea id="f_ng_pres" placeholder="禁止防腐成分を入力" style="display:none"></textarea>
+        <button class="tog-btn" id="toggle_ng_pres" style="display:none;align-self:flex-start;min-height:36px;padding:6px 12px;" onclick="toggleMode('ng_pres')">手入力</button>
+      </div>
+    </div>
+    <div class="field full">
+      <label>特記事項</label>
+      <textarea id="f_special" placeholder="特記事項を入力"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 発送先 -->
+<div class="card">
+  <div class="card-title">発送先</div>
+  <div class="fields">
+    <div class="field full">
+      <div class="fh"><label>宛名</label><span class="list-badge" id="badge_addr" style="display:none">リスト済</span></div>
+      <div class="toggle-wrap">
+        <input type="text" id="f_addr" placeholder="宛名（得意先を先に選ぶと絞り込まれます）">
+        <select id="f_addr_sel" style="display:none"></select>
+        <button class="tog-btn" id="toggle_addr" style="display:none" onclick="toggleMode('addr')">手入力</button>
+      </div>
+      <span style="font-size:10px;color:var(--accent);font-style:italic;margin-top:2px;display:none" id="note_addr">※ 得意先で絞り込み中</span>
+    </div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-outline" onclick="clearForm()">クリア</button>
+  <button class="btn btn-primary" onclick="addRecord()">＋ 追加</button>
+</div>
+
+<!-- 登録済みリスト -->
+<div class="records-section">
+  <div class="rec-header">
+    <span class="rec-title">登録済み件数</span>
+    <span class="cnt-badge" id="rec_count">0件</span>
+  </div>
+  <div class="tbl-wrap">
+    <div id="records_body"><div class="empty">まだ登録されていません</div></div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-danger" onclick="clearAll()">全件削除</button>
+    <button class="btn btn-csv" onclick="downloadCSV()">📥 CSV出力</button>
+    <button class="btn btn-mail" id="btn_mail" onclick="openMailer()" style="display:none">✉️ メーラーを開く</button>
+  </div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- 文字コード変換ライブラリ（Shift-JIS出力） -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/encoding-japanese/2.1.0/encoding.min.js"></script>
+<script>
+// 発売年リスト
+(function(){
+  const sel=document.getElementById('f_launch_year');
+  const y=new Date().getFullYear();
+  for(let i=y;i<=y+5;i++){const o=document.createElement('option');o.value=i;o.textContent=i+'年';sel.appendChild(o);}
+})();
+
+// ラジオボタン初期化（iOS Safari対応）
+document.addEventListener('DOMContentLoaded', function(){
+  initRadioGroups();
+  // Accessから埋め込まれたデータが存在すれば自動適用
+  if(Object.keys(listData).length > 0){
+    applyListData();
+    const badge = document.getElementById('acc_badge');
+    if(badge) badge.style.display = 'inline-block';
+    const status = document.getElementById('imp_status');
+    if(status) status.textContent = '';
+  }
+});
+
+const KIND_DATA=[
+  {name:"シャンプー",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアリンス",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアコンディショナー",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアトリートメント",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアオイル",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアクリーム",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアミルク",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアスタイリング",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアワックス",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアジェル",cosme:true,iyaku:true,zakka:false},
+  {name:"ブローローション",cosme:true,iyaku:true,zakka:false},
+  {name:"カーリング料",cosme:true,iyaku:false,zakka:false},
+  {name:"染毛料",cosme:true,iyaku:false,zakka:false},
+  {name:"ヘアカラートリートメント",cosme:true,iyaku:false,zakka:false},
+  {name:"ヘアマニキュア",cosme:true,iyaku:false,zakka:false},
+  {name:"染毛剤",cosme:false,iyaku:true,zakka:false},
+  {name:"染毛助剤",cosme:false,iyaku:true,zakka:false},
+  {name:"脱色剤",cosme:false,iyaku:true,zakka:false},
+  {name:"ヘアローション",cosme:true,iyaku:true,zakka:false},
+  {name:"ヘアトニック",cosme:true,iyaku:true,zakka:false},
+  {name:"頭皮ローション",cosme:true,iyaku:false,zakka:false},
+  {name:"育毛剤",cosme:false,iyaku:true,zakka:false},
+  {name:"ヘアローション(2層式)",cosme:true,iyaku:true,zakka:false},
+  {name:"化粧水",cosme:true,iyaku:true,zakka:false},
+  {name:"美容液",cosme:true,iyaku:true,zakka:false},
+  {name:"乳液/クリーム",cosme:true,iyaku:true,zakka:false},
+  {name:"化粧油",cosme:true,iyaku:true,zakka:false},
+  {name:"プレシェービングミルク",cosme:true,iyaku:true,zakka:false},
+  {name:"アフターシェービングミルク",cosme:true,iyaku:true,zakka:false},
+  {name:"ボディジェル",cosme:true,iyaku:false,zakka:false},
+  {name:"除毛剤",cosme:false,iyaku:true,zakka:false},
+  {name:"全身ローション",cosme:true,iyaku:true,zakka:false},
+  {name:"日焼け止め",cosme:true,iyaku:true,zakka:false},
+  {name:"ハンドクリーム",cosme:true,iyaku:true,zakka:false},
+  {name:"メーク落とし",cosme:true,iyaku:true,zakka:false},
+  {name:"ハンドソープ",cosme:true,iyaku:true,zakka:false},
+  {name:"ボディソープ",cosme:true,iyaku:true,zakka:false},
+  {name:"全身洗浄料",cosme:true,iyaku:true,zakka:false},
+  {name:"フェイスパック",cosme:true,iyaku:true,zakka:false},
+  {name:"洗顔料",cosme:true,iyaku:true,zakka:false},
+  {name:"スキンローション(2層式)",cosme:true,iyaku:true,zakka:false},
+  {name:"眉墨",cosme:true,iyaku:true,zakka:false},
+  {name:"コールド二浴式パーマネントウェーブ用剤 第1剤(チオ)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式パーマネントウェーブ用剤 第1剤(シス)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式パーマネントウェーブ用剤 第2剤(臭素酸)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式パーマネントウェーブ用剤 第2剤(過水)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式パーマネントウェーブ用剤 第1剤(チオ)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式パーマネントウェーブ用剤 第1剤(シス)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式パーマネントウェーブ用剤 第2剤(臭素酸)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式パーマネントウェーブ用剤 第2剤(過水)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤 第1剤",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤 第2剤(臭素酸)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤 第2剤(過水)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤(アイロン有) 第1剤",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤(アイロン有) 第2剤(臭素酸)",cosme:false,iyaku:true,zakka:false},
+  {name:"コールド二浴式縮毛矯正用剤(アイロン有) 第2剤(過水)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式縮毛矯正用剤 第1剤",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式縮毛矯正溶剤 第2剤(臭素酸)",cosme:false,iyaku:true,zakka:false},
+  {name:"加温二浴式縮毛矯正溶剤 第2剤(過水)",cosme:false,iyaku:true,zakka:false},
+  {name:"無し(雑貨)",cosme:false,iyaku:false,zakka:true},
+];
+
+const FIELD_MAP={
+  staff:     {cat:'担当者',      type:'select'},
+  client:    {cat:'得意先名',    type:'select'},
+  container: {cat:'商品予定容器',type:'select'},
+  ng_ing:    {cat:'使用禁止成分',type:'multisel'},
+  ng_pres:   {cat:'禁止防腐成分',type:'multisel'},
+  addr:      {cat:'宛名',        type:'select'},
+};
+
+// <!-- LIST_DATA_START -->
+// VBAによって自動生成されたリストデータがここに挿入されます
+// 手動でCSVを読み込んだ場合はそちらが優先されます
+let listData={};
+// <!-- LIST_DATA_END -->
+let fieldMode={};
+Object.keys(FIELD_MAP).forEach(k=>fieldMode[k]='text');
+let multiSel={ng_ing:[],ng_pres:[]};
+let currentStaffEmail='';
+
+// CSVパーサー
+function parseCSVLine(line){
+  const res=[];let cur='',inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(c==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(c===','&&!inQ){res.push(cur);cur='';}
+    else cur+=c;
+  }
+  res.push(cur);return res;
+}
+
+// リストCSV読み込み（Shift-JIS / UTF-8 自動判定）
+function importListCSV(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      let text;
+      try{
+        text=new TextDecoder('shift_jis').decode(e.target.result);
+        if((text.match(/\ufffd/g)||[]).length>5) text=new TextDecoder('utf-8').decode(e.target.result);
+      }catch(_){ text=new TextDecoder('utf-8').decode(e.target.result); }
+      const lines=text.replace(/\r/g,'').split('\n').filter(l=>l.trim());
+      const si=lines[0].trim().match(/^(カテゴリ|category)/i)?1:0;
+      const nd={};
+      for(let i=si;i<lines.length;i++){
+        const p=parseCSVLine(lines[i]);
+        if(p.length<2)continue;
+        const cat=p[0].trim();
+        let id='',name='',clientId='',email='';
+        if(p.length>=3){id=p[1].trim();name=p[2].trim();}
+        else{name=p[1].trim();}
+        if(p.length>=4){clientId=p[3].trim();}
+        if(p.length>=5){email=p[4].trim();}
+        if(!cat||!name)continue;
+        if(!nd[cat])nd[cat]=[];
+        nd[cat].push({id,name,clientId,email});
+      }
+      listData=nd;applyListData();
+      const total=Object.values(nd).reduce((s,a)=>s+a.length,0);
+      document.getElementById('imp_status').textContent=`読込済(${total}件)`;
+      document.getElementById('imp_status').className='imp-status';
+      showToast('リスト読み込み完了！');
+    }catch(err){
+      document.getElementById('imp_status').textContent='読込エラー';
+      document.getElementById('imp_status').className='imp-status err';
+      showToast('読み込み失敗',true);
+    }
+    input.value='';
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function applyListData(){
+  Object.entries(FIELD_MAP).forEach(([key,cfg])=>{
+    const items=listData[cfg.cat];
+    const badge=document.getElementById('badge_'+key);
+    if(!badge)return;
+    if(cfg.type==='multisel'){
+      const selEl=document.getElementById('f_'+key+'_sel');
+      const msrow=document.getElementById('msrow_'+key);
+      const togBtn=document.getElementById('toggle_'+key);
+      const textEl=document.getElementById('f_'+key);
+      if(items&&items.length>0){
+        badge.style.display='inline-block';
+        selEl.innerHTML='<option value="">— 選択して追加 —</option>';
+        items.forEach(item=>{
+          const o=document.createElement('option');
+          o.value=item.id?`${item.id}\t${item.name}`:item.name;
+          o.textContent=item.id?`${item.name} [${item.id}]`:item.name;
+          selEl.appendChild(o);
+        });
+        msrow.style.display='flex';
+        textEl.style.display='none';
+        togBtn.style.display='inline-block';
+        fieldMode[key]='select';
+      } else {
+        badge.style.display='none';
+        msrow.style.display='none';
+        textEl.style.display='block';
+        togBtn.style.display='none';
+        fieldMode[key]='text';
+      }
+    } else {
+      const selEl=document.getElementById('f_'+key+'_sel');
+      const textEl=document.getElementById('f_'+key);
+      const togBtn=document.getElementById('toggle_'+key);
+      if(items&&items.length>0){
+        badge.style.display='inline-block';
+        if(togBtn)togBtn.style.display='inline-block';
+        fieldMode[key]='select';
+        buildSelect(selEl,items);
+        if(selEl)selEl.style.display='';
+        if(textEl)textEl.style.display='none';
+        if(togBtn)togBtn.textContent='手入力';
+        // 担当者セレクトにメール取得イベントを確実に設定
+        if(key==='staff'&&selEl){
+          selEl.onchange=onStaffChange;
+        }
+      } else {
+        badge.style.display='none';
+        if(togBtn)togBtn.style.display='none';
+        if(selEl)selEl.style.display='none';
+        if(textEl)textEl.style.display='';
+        fieldMode[key]='text';
+      }
+    }
+  });
+}
+
+function buildSelect(selEl,items,filterClientId){
+  if(!selEl)return;
+  selEl.innerHTML='<option value="">— 選択 —</option>';
+  items.forEach(item=>{
+    if(filterClientId&&item.clientId&&item.clientId!==filterClientId)return;
+    const o=document.createElement('option');
+    o.value=item.id?`${item.id}\t${item.name}`:item.name;
+    o.textContent=item.id?`${item.name} [${item.id}]`:item.name;
+    selEl.appendChild(o);
+  });
+}
+
+function filterAddressByClient(){
+  const addrItems=listData['宛名'];if(!addrItems)return;
+  const clientSel=document.getElementById('f_client_sel');
+  let clientId='';
+  if(clientSel&&clientSel.value&&clientSel.value.includes('\t')){
+    clientId=clientSel.value.split('\t')[0];
+  } else if(clientSel&&clientSel.value){
+    clientId=clientSel.value;
+  }
+  if(fieldMode['addr']!=='select')return;
+  const selEl=document.getElementById('f_addr_sel');
+  const note=document.getElementById('note_addr');
+  if(clientId){buildSelect(selEl,addrItems,clientId);if(note)note.style.display='block';}
+  else{buildSelect(selEl,addrItems);if(note)note.style.display='none';}
+}
+
+// 担当者選択時にメールアドレスを取得
+function onStaffChange(){
+  const sel=document.getElementById('f_staff_sel');
+  if(!sel||!sel.value){currentStaffEmail='';return;}
+  const staffList=listData['担当者']||[];
+  const val=sel.value;
+  let id='',name='';
+  if(val.includes('\t')){const p=val.split('\t');id=p[0];name=p.slice(1).join('\t');}
+  else{name=val;}
+  const found=staffList.find(x=>(id?x.id===id:x.name===name));
+  currentStaffEmail=found?(found.email||''):'';
+}
+
+function addTag(key){
+  const selEl=document.getElementById('f_'+key+'_sel');
+  if(!selEl||!selEl.value)return;
+  const val=selEl.value;
+  let id='',name='';
+  if(val.includes('\t')){const parts=val.split('\t');id=parts[0];name=parts.slice(1).join('\t');}
+  else{name=val;}
+  if(multiSel[key].find(x=>x.id===id&&x.name===name)){selEl.value='';return;}
+  multiSel[key].push({id,name});
+  renderTags(key);
+  selEl.value='';
+}
+
+function removeTag(key,idx){multiSel[key].splice(idx,1);renderTags(key);}
+
+function renderTags(key){
+  const area=document.getElementById('tags_'+key);if(!area)return;
+  if(multiSel[key].length===0){area.innerHTML='<span class="multisel-empty">未選択</span>';return;}
+  area.innerHTML=multiSel[key].map((item,i)=>{
+    const label=item.id?`${item.name} [${item.id}]`:item.name;
+    return `<span class="tag">${label}<span class="tag-del" onclick="removeTag('${key}',${i})">×</span></span>`;
+  }).join('');
+}
+
+function toggleMode(key){
+  const cfg=FIELD_MAP[key];
+  if(cfg&&cfg.type==='multisel'){
+    const msrow=document.getElementById('msrow_'+key);
+    const textEl=document.getElementById('f_'+key);
+    const togBtn=document.getElementById('toggle_'+key);
+    if(fieldMode[key]==='select'){
+      fieldMode[key]='text';
+      if(msrow)msrow.style.display='none';
+      if(textEl){textEl.style.display='block';textEl.focus();}
+      if(togBtn)togBtn.textContent='リストから選択';
+    } else {
+      fieldMode[key]='select';
+      if(msrow)msrow.style.display='flex';
+      if(textEl)textEl.style.display='none';
+      if(togBtn)togBtn.textContent='手入力';
+    }
+    return;
+  }
+  const selEl=document.getElementById('f_'+key+'_sel');
+  const textEl=document.getElementById('f_'+key);
+  const togBtn=document.getElementById('toggle_'+key);
+  if(fieldMode[key]==='select'){
+    fieldMode[key]='text';
+    if(selEl)selEl.style.display='none';
+    if(textEl){textEl.style.display='';textEl.focus();}
+    if(togBtn)togBtn.textContent='リストから選択';
+  } else {
+    fieldMode[key]='select';
+    if(selEl)selEl.style.display='';
+    if(textEl)textEl.style.display='none';
+    if(togBtn)togBtn.textContent='手入力';
+  }
+}
+
+function getFieldPair(key){
+  if(fieldMode[key]==='select'){
+    const s=document.getElementById('f_'+key+'_sel');
+    if(!s||!s.value)return{id:'',name:''};
+    const val=s.value;
+    if(val.includes('\t')){const parts=val.split('\t');return{id:parts[0],name:parts.slice(1).join('\t')};}
+    return{id:'',name:val};
+  }
+  const t=document.getElementById('f_'+key);
+  return{id:'',name:t?t.value.trim():''};
+}
+
+function getMultiSelValue(key){
+  if(fieldMode[key]==='text'){
+    const t=document.getElementById('f_'+key);
+    return{ids:'',names:t?t.value.trim():''};
+  }
+  return{
+    ids:multiSel[key].map(x=>x.id).filter(Boolean).join(';'),
+    names:multiSel[key].map(x=>x.name).join(';'),
+  };
+}
+
+function downloadTemplate(){
+  const rows=[
+    'カテゴリ,ID,名前,得意先ID（宛名のみ使用）,メールアドレス（担当者のみ使用）',
+    '担当者,001,山田 太郎,,yamada@example.com',
+    '担当者,002,鈴木 花子,,suzuki@example.com',
+    '得意先名,C001,株式会社〇〇,,',
+    '得意先名,C002,有限会社△△,,',
+    '商品予定容器,B001,ポンプボトル 200ml,,',
+    '商品予定容器,B002,チューブ 100g,,',
+    '使用禁止成分,I001,パラベン,,',
+    '使用禁止成分,I002,エタノール,,',
+    '禁止防腐成分,P001,フェノキシエタノール,,',
+    '宛名,A001,〇〇株式会社 開発部,C001,',
+    '宛名,A002,△△株式会社 営業部,C002,',
+  ];
+  dlShiftJIS(rows.join('\n'),'リストテンプレート.csv');
+  showToast('テンプレートをダウンロードしました');
+}
+
+function filterKind(){
+  const cat=getRadio('category');
+  const sel=document.getElementById('f_kind');
+  if(!sel)return;
+  sel.innerHTML='';
+  if(!cat){sel.disabled=true;sel.innerHTML='<option value="">— 先に分類を選択 —</option>';return;}
+  sel.disabled=false;sel.innerHTML='<option value="">— 選択 —</option>';
+  KIND_DATA.forEach(k=>{
+    const ok=(cat==='化粧品'&&k.cosme)||(cat==='医薬部外品'&&k.iyaku)||(cat==='雑貨'&&k.zakka);
+    if(ok){const o=document.createElement('option');o.value=k.name;o.textContent=k.name;sel.appendChild(o);}
+  });
+}
+
+// ラジオボタン（button版）：タップで選択状態を管理（iOS Safari対応）
+function initRadioGroups(){
+  document.querySelectorAll('.radio-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var name = this.dataset.name;
+      // 同グループのselectedを外す
+      document.querySelectorAll('.radio-btn[data-name="'+name+'"]').forEach(function(b){
+        b.classList.remove('selected');
+      });
+      this.classList.add('selected');
+      // 分類変更時は種類別名称を絞り込む
+      if(name==='category') filterKind();
+    });
+  });
+}
+
+function selectRadio(name, value){
+  document.querySelectorAll('.radio-btn[data-name="'+name+'"]').forEach(function(b){
+    b.classList.remove('selected');
+    if(b.dataset.value===value) b.classList.add('selected');
+  });
+}
+function getRadio(name){
+  var btn=document.querySelector('.radio-btn[data-name="'+name+'"].selected');
+  return btn?btn.dataset.value:'';
+}function v(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function getLaunchText(){
+  const m=v('f_launch'),y=v('f_launch_year');
+  if(!m)return '';return y?`${y}年${m}月頃`:`${m}月頃`;
+}
+
+let records=[];
+
+function addRecord(){
+  if(!v('f_date')){showToast('依頼日は必須です',true);return;}
+  const staff=getFieldPair('staff');
+  const client=getFieldPair('client');
+  const container=getFieldPair('container');
+  const ng_ing=getMultiSelValue('ng_ing');
+  const ng_pres=getMultiSelValue('ng_pres');
+  const addr=getFieldPair('addr');
+
+  // 担当者メールをレコードに保存（メーラー起動に使用）
+  const staffEmail = currentStaffEmail || '';
+
+  records.push({
+    依頼日:         v('f_date'),
+    担当者ID:       staff.id,
+    担当者名:       staff.name,
+    担当者メール:   staffEmail,
+    依頼内容:       getRadio('req_short'),
+    分類:           getRadio('category'),
+    発売予定日:     getLaunchText(),
+    商品予定容器ID: container.id,
+    商品予定容器名: container.name,
+    容器色:         v('f_color'),
+    得意先ID:       client.id,
+    得意先名:       client.name,
+    サンプル名:     v('f_sample'),
+    納期日:         v('f_nouki_date'),
+    納期区分:       getRadio('nouki'),
+    ベース処方:     v('f_base'),
+    依頼内容_詳細:  v('f_request'),
+    希望配合成分:   v('f_want_ing'),
+    使用方法:       v('f_usage'),
+    液色:           v('f_liqcolor'),
+    香り:           v('f_scent'),
+    使用禁止成分ID: ng_ing.ids,
+    使用禁止成分名: ng_ing.names,
+    禁止防腐成分ID: ng_pres.ids,
+    禁止防腐成分名: ng_pres.names,
+    特記事項:       v('f_special'),
+    宛名ID:         addr.id,
+    宛名:           addr.name,
+  });
+  renderTable();clearForm();showToast('追加しました！');
+}
+
+function renderTable(){
+  const body=document.getElementById('records_body');
+  document.getElementById('rec_count').textContent=records.length+'件';
+  if(!records.length){body.innerHTML='<div class="empty">まだ登録されていません</div>';return;}
+  const cols=['依頼日','担当者名','依頼内容','得意先名','分類','サンプル名','発売予定日','納期日'];
+  let html='<table><thead><tr>';
+  cols.forEach(c=>html+=`<th>${c}</th>`);
+  html+='<th></th></tr></thead><tbody>';
+  records.forEach((r,i)=>{
+    html+='<tr>';
+    cols.forEach(c=>html+=`<td title="${r[c]||''}">${r[c]||'—'}</td>`);
+    html+=`<td><button class="del-btn" onclick="deleteRecord(${i})">✕</button></td></tr>`;
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
+
+function deleteRecord(i){records.splice(i,1);renderTable();showToast('削除しました');}
+
+function clearAll(){
+  if(!records.length)return;
+  if(confirm('全件削除してよろしいですか？')){
+    records=[];renderTable();
+    const btnMail=document.getElementById('btn_mail');
+    if(btnMail)btnMail.style.display='none';
+    showToast('全件削除しました');
+  }
+}
+
+const TEXT_IDS=['f_date','f_staff','f_launch','f_launch_year','f_color','f_sample',
+  'f_nouki_date','f_base','f_request','f_want_ing','f_usage','f_liqcolor','f_scent',
+  'f_ng_ing','f_ng_pres','f_special','f_client','f_container','f_addr'];
+const SEL_IDS=['f_staff_sel','f_client_sel','f_container_sel','f_ng_ing_sel','f_ng_pres_sel','f_addr_sel'];
+const RADIO_NAMES=['req_short','category','nouki'];
+
+function clearForm(){
+  TEXT_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  SEL_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  RADIO_NAMES.forEach(name=>{
+    document.querySelectorAll('.radio-btn[data-name="'+name+'"]').forEach(function(b){
+      b.classList.remove('selected');
+    });
+  });
+  multiSel={ng_ing:[],ng_pres:[]};
+  ['ng_ing','ng_pres'].forEach(k=>renderTags(k));
+  const note=document.getElementById('note_addr');if(note)note.style.display='none';
+  const addrItems=listData['宛名'];
+  if(addrItems&&fieldMode['addr']==='select'){
+    buildSelect(document.getElementById('f_addr_sel'),addrItems);
+  }
+  currentStaffEmail='';
+  const btnMail=document.getElementById('btn_mail');
+  if(btnMail)btnMail.style.display='none';
+}
+
+function downloadCSV(){
+  if(!records.length){showToast('データがありません',true);return;}
+  const cols=Object.keys(records[0]);
+  const esc=val=>'"'+String(val||'').replace(/"/g,'""')+'"';
+  let csv=cols.map(esc).join(',')+'\n';
+  records.forEach(r=>{csv+=cols.map(c=>esc(r[c])).join(',')+'\n';});
+  const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  dlShiftJIS(csv,`サンプル依頼_${today}.csv`);
+  // 最新レコードの担当者メールでボタン表示判定
+  const latestEmail = records.length ? records[records.length-1]['担当者メール'] : '';
+  const btnMail=document.getElementById('btn_mail');
+  if(btnMail)btnMail.style.display=latestEmail?'':'none';
+  showToast('CSVをダウンロードしました！');
+}
+
+function openMailer(){
+  if(!records.length){showToast('先にレコードを追加してください',true);return;}
+  const r=records[records.length-1];
+  const mailTo = r['担当者メール'] || '';
+  const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const filename=`サンプル依頼_${today}.csv`;
+  const subject=encodeURIComponent(
+    `【サンプル依頼】${r['得意先名']||''}　${r['サンプル名']||''}　${r['依頼日']||''}`
+  );
+  const bodyLines=[
+    `${r['担当者名']||''} 様`,
+    '',
+    'お疲れ様です。',
+    '下記の通りサンプル依頼書を送付いたします。',
+    `添付ファイル：${filename} をご確認ください。`,
+    '',
+    '─────────────────────',
+    `依頼日　　：${r['依頼日']||''}`,
+    `依頼内容　：${r['依頼内容']||''}`,
+    `得意先名　：${r['得意先名']||''}`,
+    `サンプル名：${r['サンプル名']||''}`,
+    `分類　　　：${r['分類']||''}`,
+    `納期　　　：${r['納期日']||''} ${r['納期区分']||''}`,
+    '─────────────────────',
+    '',
+    '※ CSVファイルを添付してから送信してください。',
+  ];
+  const body=encodeURIComponent(bodyLines.join('\n'));
+  const to=encodeURIComponent(mailTo);
+  window.location.href=`mailto:${to}?subject=${subject}&body=${body}`;
+  showToast('メーラーを起動しました');
+}
+
+function dlShiftJIS(content,filename){
+  if(typeof Encoding==='undefined'){
+    const blob=new Blob(['\uFEFF'+content],{type:'text/csv;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+    URL.revokeObjectURL(url);return;
+  }
+  const unicodeArr=Encoding.stringToCode(content);
+  const sjisArr=Encoding.convert(unicodeArr,{to:'SJIS',from:'UNICODE'});
+  const uint8=new Uint8Array(sjisArr);
+  const blob=new Blob([uint8],{type:'text/csv;charset=shift_jis'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;a.click();
+  URL.revokeObjectURL(url);
+}
+
+function showToast(msg,isError){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.background=isError?'#c0392b':'var(--accent)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// Service Worker 登録
+if('serviceWorker' in navigator){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js').then(function(reg){
+      console.log('[SW] 登録成功:', reg.scope);
+    }).catch(function(err){
+      console.warn('[SW] 登録失敗:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
