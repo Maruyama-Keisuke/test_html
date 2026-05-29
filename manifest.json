@@ -3,7 +3,7 @@
   "short_name": "サンプル依頼",
   "description": "サンプル依頼入力フォーム",
   "start_url": "./index.html",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#f5f4f0",
   "theme_color": "#2c5f4a",
   "orientation": "portrait",
