@@ -166,7 +166,7 @@ tr:hover td{background:#faf9f6;}
   <div class="import-row">
     <span class="acc-badge" id="acc_badge" style="display:none">🗄️ Accessデータ埋込済</span>
     <label class="file-btn" for="list_csv">📁 CSVを選択</label>
-    <input type="file" id="list_csv" accept=".csv" onchange="importListCSV(this)">
+    <input type="file" id="list_csv" accept=".csv,text/csv,text/plain,text/comma-separated-values,application/csv,application/excel,application/vnd.ms-excel" onchange="importListCSV(this)">
     <span class="tmpl-link" onclick="downloadTemplate()">テンプレをDL</span>
     <span class="imp-status" id="imp_status">未読み込み</span>
   </div>
