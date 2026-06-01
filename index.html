@@ -167,7 +167,6 @@ tr:hover td{background:#faf9f6;}
     <span class="acc-badge" id="acc_badge" style="display:none">🗄️ Accessデータ埋込済</span>
     <label class="file-btn" for="list_csv">📁 CSVを選択</label>
     <input type="file" id="list_csv" accept=".csv,text/csv,text/plain,text/comma-separated-values,application/csv,application/excel,application/vnd.ms-excel" onchange="importListCSV(this)">
-    <span class="tmpl-link" onclick="downloadTemplate()">テンプレをDL</span>
     <span class="imp-status" id="imp_status">未読み込み</span>
   </div>
 </div>
@@ -697,25 +696,6 @@ function getMultiSelValue(key){
     ids:multiSel[key].map(x=>x.id).filter(Boolean).join(';'),
     names:multiSel[key].map(x=>x.name).join(';'),
   };
-}
-
-function downloadTemplate(){
-  const rows=[
-    'カテゴリ,ID,名前,得意先ID（宛名のみ使用）,メールアドレス（担当者のみ使用）',
-    '担当者,001,山田 太郎,,yamada@example.com',
-    '担当者,002,鈴木 花子,,suzuki@example.com',
-    '得意先名,C001,株式会社〇〇,,',
-    '得意先名,C002,有限会社△△,,',
-    '商品予定容器,B001,ポンプボトル 200ml,,',
-    '商品予定容器,B002,チューブ 100g,,',
-    '使用禁止成分,I001,パラベン,,',
-    '使用禁止成分,I002,エタノール,,',
-    '禁止防腐成分,P001,フェノキシエタノール,,',
-    '宛名,A001,〇〇株式会社 開発部,C001,',
-    '宛名,A002,△△株式会社 営業部,C002,',
-  ];
-  dlShiftJIS(rows.join('\n'),'リストテンプレート.csv');
-  showToast('テンプレートをダウンロードしました');
 }
 
 function filterKind(){
